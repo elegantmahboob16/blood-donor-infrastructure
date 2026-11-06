@@ -1,0 +1,26 @@
+
+# Terraform working directory
+.terraform/
+
+# Terraform state
+*.tfstate
+*.tfstate.*
+
+# Terraform plan files
+*.tfplan
+tfplan
+
+# Variable files containing sensitive values
+*.tfvars
+*.tfvars.json
+
+# Crash logs
+crash.log
+
+# Private keys
+*.pem
+*.key
+
+# Credentials
+.aws/
+.env
