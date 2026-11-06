@@ -37,6 +37,7 @@ variable "tags" {
 variable "ssh_allowed_cidr" {
   description = "CIDR range allowed to connect to the instance over SSH"
   type        = string
+  default     = "103.48.69.218/32"
 }
 
 variable "AMI_ID" {
@@ -53,6 +54,7 @@ variable "instance_type" {
 variable "key_name" {
   description = "Name of the existing EC2 key pair"
   type        = string
+  default     = "k8s-cluster"
 }
 
 variable "bucket_name" {
