@@ -1,0 +1,79 @@
+
+pipeline {
+    agent any
+
+    options {
+        timestamps()
+        disableConcurrentBuilds()
+    }
+
+    environment {
+        AWS_DEFAULT_REGION = 'us-east-1'
+        TF_IN_AUTOMATION = 'true'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init -input=false -no-color'
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                sh 'terraform validate -no-color'
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                sh '''
+                    terraform plan \
+                      -input=false \
+                      -no-color \
+                      -lock-timeout=5m \
+                      -out=tfplan
+
+                    terraform show -no-color tfplan
+                '''
+            }
+        }
+
+        stage('Manual Approval') {
+            steps {
+                timeout(time: 30, unit: 'MINUTES') {
+                    input(
+                        message: 'Review the Terraform plan. Approve only expected AWS changes.',
+                        ok: 'Approve and Apply'
+                    )
+                }
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                sh 'terraform apply -input=false -no-color tfplan'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'CD Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'CD Pipeline failed. Check Console Output.'
+        }
+
+        always {
+            deleteDir()
+        }
+    }
+}
